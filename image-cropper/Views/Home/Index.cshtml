@@ -7,11 +7,12 @@
         width: 100%;
         height: 200px;
     }
-    .preview-lg > img {
-        width: 100%;
-        height: auto;
-        transform:initial;
-    }
+
+        .preview-lg > img {
+            width: 100%;
+            height: auto;
+            transform: initial;
+        }
 </style>
 
 <div class="row mt-5">
@@ -48,8 +49,29 @@
     </div>
 </div>
 
+<!-- Show the cropped image in modal -->
+<div class="modal fade docs-cropped" id="getCroppedCanvasModal" aria-hidden="true" aria-labelledby="getCroppedCanvasTitle" role="dialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="getCroppedCanvasTitle">Cropped</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a class="btn btn-primary" id="download" href="javascript:void(0);" download="cropped.jpg">Download</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
+        var uploadedImageName = 'cropped.jpg';
+        var uploadedImageType = 'image/jpeg';
         var $image = $('#image');
         var $download = $('#download');
         var $dataX = $('#dataX');
@@ -93,6 +115,88 @@
                 console.log(e.type, e.detail.ratio);
             }
         }).cropper(options);
+
+        // Download
+        if (typeof $download[0].download === 'undefined') {
+            $download.addClass('disabled');
+        }
+
+        $('.docs-buttons').on('click', '[data-method]', function () {
+            var $this = $(this);
+            var data = $this.data();
+            var cropper = $image.data('cropper');
+            var cropped;
+            var $target;
+            var result;
+
+            if ($this.prop('disabled') || $this.hasClass('disabled')) {
+                return;
+            }
+
+            if (cropper && data.method) {
+                data = $.extend({}, data); // Clone a new one
+
+                if (typeof data.target !== 'undefined') {
+                    $target = $(data.target);
+
+                    if (typeof data.option === 'undefined') {
+                        try {
+                            data.option = JSON.parse($target.val());
+                        } catch (e) {
+                            console.log(e.message);
+                        }
+                    }
+                }
+
+                cropped = cropper.cropped;
+
+                switch (data.method) {
+                    case 'getCroppedCanvas':
+                        if (uploadedImageType === 'image/jpeg') {
+                            if (!data.option) {
+                                data.option = {};
+                            }
+
+                            data.option.fillColor = '#fff';
+                        }
+
+                        break;
+                }
+
+                result = $image.cropper(data.method, data.option, data.secondOption);
+
+                switch (data.method) {
+                    case 'getCroppedCanvas':
+                        if (result) {
+                            // Bootstrap's Modal
+                            $('#getCroppedCanvasModal').modal().find('.modal-body').html(result);
+
+                            if (!$download.hasClass('disabled')) {
+                                download.download = uploadedImageName;
+                                $download.attr('href', result.toDataURL(uploadedImageType));
+                            }
+                        }
+                        break;
+                    case 'destroy':
+                        if (uploadedImageURL) {
+                            URL.revokeObjectURL(uploadedImageURL);
+                            uploadedImageURL = '';
+                            $image.attr('src', originalImageURL);
+                        }
+
+                        break;
+                }
+
+                if ($.isPlainObject(result) && $target) {
+                    try {
+                        $target.val(JSON.stringify(result));
+                    } catch (e) {
+                        console.log(e.message);
+                    }
+                }
+            }
+        });
+
     });
 </script>
 
