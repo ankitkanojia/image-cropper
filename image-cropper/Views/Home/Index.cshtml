@@ -33,6 +33,10 @@
                         Get Cropped Canvas
                     </span>
                 </button>
+
+            </div>
+
+            <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-method="reset" title="Reset">
                     <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="$().cropper(&quot;reset&quot;)">
                         <span class="fa fa-sync-alt"></span>
@@ -55,6 +59,14 @@
                 <button type="button" class="btn btn-primary" data-method="zoom" data-option="-0.1" title="Zoom Out">
                     <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="$().cropper(&quot;zoom&quot;, -0.1)">
                         <span class="fa fa-search-minus"></span>
+                    </span>
+                </button>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-method="rotateTo" data-option="180">
+                    <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="cropper.rotateTo(180)">
+                        Rotate 180°
                     </span>
                 </button>
             </div>
@@ -168,6 +180,12 @@
                     cropped = cropper.cropped;
 
                     switch (data.method) {
+                        case 'rotate':
+                            if (cropped && options.viewMode > 0) {
+                                $image.cropper('clear');
+                            }
+
+                            break;
                         case 'getCroppedCanvas':
                             if (uploadedImageType === 'image/jpeg') {
                                 if (!data.option) {
@@ -183,6 +201,12 @@
                     result = $image.cropper(data.method, data.option, data.secondOption);
 
                     switch (data.method) {
+                        case 'rotate':
+                            if (cropped && options.viewMode > 0) {
+                                $image.cropper('crop');
+                            }
+
+                            break;
                         case 'getCroppedCanvas':
                             if (result) {
                                 // Bootstrap's Modal
