@@ -1,1 +1,1 @@
-# image-cropper
+<img src="https://raw.githubusercontent.com/ankitkanojia/image-cropper/master/image-cropper/images/default.PNG" alt="image-cropper" />
